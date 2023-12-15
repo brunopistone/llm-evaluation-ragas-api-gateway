@@ -1,11 +1,10 @@
-import csv
 from langchain.document_loaders import WebBaseLoader
-from langchain.embeddings.bedrock import Embeddings
+from langchain_core.embeddings import Embeddings
 from langchain.llms.amazon_api_gateway import AmazonAPIGateway
 import requests
 import sys
 from typing import List
-from utils.langchain import LangchainLLM
+from ragas.llms import LangchainLLM
 from ragas.testset import testset_generator
 
 class AmazonAPIGatewayEmbeddings(Embeddings):
@@ -149,15 +148,14 @@ if __name__ == "__main__":
 
     df = testset.to_pandas()
 
-    df.dropna(subset=['question', 'ground_truth_context', 'ground_truth'], inplace=True)
+    df.dropna(inplace=True)
+    df = df[df.ne('').all(1)]
 
     df.to_csv(
         "./dataset.csv",
         index=False,
         header=True,
-        quoting=csv.QUOTE_ALL,
         encoding="utf-8",
-        escapechar="\\",
         sep=","
     )
 

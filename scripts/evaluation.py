@@ -1,8 +1,10 @@
+import ast
 from datasets import Dataset, Features, Sequence, Value
-from langchain.embeddings.bedrock import Embeddings
+from langchain_core.embeddings import Embeddings
 from langchain.llms.amazon_api_gateway import AmazonAPIGateway
 import pandas as pd
 from ragas import evaluate
+from utils.answer_relevance import answer_relevancy
 from ragas.metrics import (
     faithfulness,
     context_precision
@@ -10,8 +12,7 @@ from ragas.metrics import (
 import requests
 import sys
 from typing import List
-from utils.langchain import LangchainLLM
-from utils.answer_relevance import answer_relevancy
+from ragas.llms import LangchainLLM
 
 metrics = [
     answer_relevancy,
@@ -100,13 +101,8 @@ def load_data(path):
         sep=","
     )
 
-    # renaming column ground_truth_context to contexts
-    df = df.rename(columns={'ground_truth_context': 'contexts'})
     # cast type to list of string
-    df['contexts'] = df['contexts'].apply(lambda x: eval(x))
-
-    # Renaming column ground_truth to answer
-    df = df.rename(columns={'ground_truth': 'answer'})
+    df['contexts'] = df['contexts'].apply(ast.literal_eval)
 
     features = {
         'question': Value(dtype='string', id=None),
